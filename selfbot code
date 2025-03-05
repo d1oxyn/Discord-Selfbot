@@ -1,0 +1,421 @@
+import discord
+from discord.ext import commands
+import dotenv
+import os
+import sys
+import asyncio
+import msvcrt
+import random
+import psutil
+import subprocess
+
+
+
+def is_discord_running():
+    # Iterate through all running processes
+    for proc in psutil.process_iter(attrs=['pid', 'name']):
+        if 'discord.exe' in proc.info['name'].lower():
+            return True
+    return False
+
+def launch_discord():
+    try:
+        # Manually specify the path to Discord.exe
+        discord_path = r"YOUR DISCORD PATH HERE"
+        
+        # If the path is found, launch Discord
+        if discord_path:
+            os.system(f'start "" "{discord_path}"')
+            print("Discord launched successfully!")
+        else:
+            print("Discord executable not found in the specified path.")
+    except Exception as e:
+        print(f"Error launching Discord: {e}")
+
+# Check if Discord is running or launch it
+if not is_discord_running():
+    print("Discord is not running. Launching Discord...")
+    launch_discord()
+else:
+    print("Discord is already running.")
+
+
+dotenv.load_dotenv()
+
+TOKEN = os.getenv("TOKEN")
+PREFIX = os.getenv("PREFIX")
+
+bot = commands.Bot(command_prefix=PREFIX, self_bot=True, intents=discord.Intents.default())
+
+chatpack_active = False
+shizophrenia_active = False
+
+shizo_messages = [
+    "mango mango mango", "those who know", "BOIIII", 
+    "BOII WHAT YOU SAY ABOUT BLOXFRUITS", "BOIII WHAT YOU SAY ABOUT PHONK", 
+    "those who know...", "still water", "ts pmo sm rn ngl",
+    "r u srsly srsfr rn vro? lol atp js go n sybau. b fr vro",
+    "idek nm, brb gng lmao", "bt ts pyo? fr. icl ts srs nw… smh. Lmk… 🥀"
+]
+
+@bot.event
+async def on_ready():
+    print(f"Successfully Logged In!\n[Client] {bot.user.name}")
+    
+    async def check_exit():
+        while True:
+            await asyncio.sleep(0.1)
+            if msvcrt.kbhit():
+                try:
+                    if msvcrt.getch() == b"\x1a":
+                        await bot.close()
+                        sys.exit()
+                except Exception:
+                    pass
+    bot.loop.create_task(check_exit())
+
+@bot.event
+async def on_message(message):
+    await bot.process_commands(message)
+
+    # --- Chatpack Feature ---
+    if chatpack_active and message.author.id == bot.user.id:
+        if not (message.content.startswith('#') or message.content.startswith('*')):
+            await asyncio.sleep(0.5)
+            symbol = random.choice(['#', '*'])
+            num_symbols = random.randint(1, 3)
+            formatted_content = f"{symbol * num_symbols} {message.content} {symbol * num_symbols}"
+            try:
+                await message.edit(content=formatted_content)
+            except Exception as e:
+                print(f"Edit failed: {e}")
+
+    # --- Auto-Reaction ---
+    if hasattr(bot, 'auto_react_user') and message.author == bot.auto_react_user:
+        if hasattr(bot, 'auto_react_emojis') and bot.auto_react_emojis:
+            emoji = random.choice(bot.auto_react_emojis)
+            try:
+                await message.add_reaction(emoji)
+            except Exception as e:
+                print(f"Reaction failed: {e}")
+
+    # --- Auto-Response ---
+    if hasattr(bot, 'auto_respond_user') and message.author == bot.auto_respond_user:
+        if hasattr(bot, 'auto_respond_messages') and bot.auto_respond_messages:
+            chosen_response = random.choice(bot.auto_respond_messages)
+            try:
+                await message.reply(chosen_response, mention_author=False)
+            except Exception as e:
+                print(f"Response failed: {e}")
+
+ 
+
+
+
+def generate_coordinates():
+    
+    north_america_lat = (24.396308, 49.384358)  
+    north_america_lon = (-125.0, -66.93457)  
+
+    
+    south_america_lat = (-55.0, 12.0)  
+    south_america_lon = (-81.0, -34.0)  
+
+    
+    europe_lat = (36.0, 71.0) 
+    europe_lon = (-25.0, 40.0)  
+
+    
+    oceania_lat = (-55.0, -10.0)  
+    oceania_lon = (112.0, 180.0) 
+
+   
+    russia_lat = (41.0, 81.0)  
+    russia_lon = (19.0, 60.0)  
+
+    
+    india_pakistan_bangladesh_lat = (5.0, 37.0)  
+    india_pakistan_bangladesh_lon = (60.0, 100.0)  
+
+   
+    regions = [
+        (north_america_lat, north_america_lon),
+        (south_america_lat, south_america_lon),
+        (europe_lat, europe_lon),
+        (oceania_lat, oceania_lon),
+        (russia_lat, russia_lon),
+        (india_pakistan_bangladesh_lat, india_pakistan_bangladesh_lon)
+    ]
+
+    
+    region = random.choice(regions)
+    lat_range, lon_range = region
+
+    
+    lat = random.uniform(lat_range[0], lat_range[1])
+    lon = random.uniform(lon_range[0], lon_range[1])
+
+    return lat, lon
+
+
+firstname = ["James", "William", "Charlotte", "Olivia", "Henry", "Emma", "Maximilian", "Felix", "Sophie", "Johanna", "Lukas", "Hannah", "Pierre", "Louis", "Amélie", "Élodie", "Hugo", "Léa", "Leonardo", "Matteo", "Giulia", "Alessia", "Lorenzo", "Sofia", "Santiago", "Diego", "Beatriz", "Camila", "Rafael", "Lucia", "Daan", "Lars", "Emma", "Lotte", "Bram", "Mila", "Erik", "Axel", "Freja", "Ingrid", "Lars", "Elin", "Jakub", "Mateusz", "Natalia", "Zuzanna", "Jan", "Alicja", "Seán", "Cillian", "Aoife", "Niamh", "Finn", "Ciara", "Bence", "Levente", "Eszter", "Lilla", "Zoltán", "Zsófia", "Aarav", "Kabir", "Aisha", "Fatima", "Rohan", "Zara"]
+first = random.choice(firstname)
+
+lastname = ["Johnson", "Smith", "Williams", "Brown", "Davis", "Miller", "Müller", "Schmidt", "Schneider", "Fischer", "Weber", "Dubois", "Moreau", "Lefevre", "Fontaine", "Bernard", "Rossi", "Bianchi", "Romano", "Ferrari", "Conti", "García", "Fernández", "López", "Martins", "Pereira", "De Vries", "Jansen", "Peeters", "Claes", "Van Dijk", "Andersen", "Olsen", "Johansson", "Bergström", "Eriksson", "Kowalski", "Nowak", "Wisniewski", "Zielinski", "Dabrowski", "O'Connor", "Murphy", "Walsh", "O'Brien", "Doyle", "Kovács", "Szabó", "Farkas", "Varga", "Nagy", "Sharma", "Khan", "Patel", "Chowdhury", "Rahman"]
+last = random.choice(lastname)
+
+
+firstipline = random.randint(100, 255)
+secondipline = random.randint(10, 99)
+thirdline = random.randint(100, 255)
+lastline = random.randint(100, 255)
+
+wholeip = f"{firstipline}.{secondipline}.{thirdline}.{lastline}"
+
+
+lat, lon = generate_coordinates()
+
+
+wholename = f"{first} {last}"
+
+@bot.command()
+async def doxx(ctx):
+    ip = wholeip
+    coords = lat, lon
+    name = wholename
+    if ctx.message.mentions:
+        
+        mentioned_user = ctx.message.mentions[0]
+
+        
+        await ctx.send(f"doxxing {mentioned_user.mention} \n IP: {wholeip} \n Longtitude: {lon} \n Latitude: {lat} \n  Full Name: {wholename}")
+    else:
+        await ctx.send("Please mention a user to doxx!")
+
+
+
+
+
+@bot.command()
+async def ping(ctx):
+    latency = round(bot.latency * 1000)
+    await ctx.message.delete()
+    await ctx.send(f"> Latency {latency}ms", delete_after=3)
+
+@bot.command()
+async def clear(ctx, amount: int):
+    if amount <= 0:
+        await ctx.send("Must be a positive integer!", delete_after=3)
+        return
+    deleted = 0
+    async for m in ctx.channel.history(limit=amount):
+        if m.author == ctx.author:
+            await m.delete()
+            deleted += 1
+    await ctx.send(f"Deleted {deleted} messages!", delete_after=3)
+
+# === Auto-Reaction ===
+@bot.command()
+async def setreactuser(ctx, user: discord.User):
+    bot.auto_react_user = user
+    await ctx.send(f"Auto-reaction set for {user.mention}.", delete_after=5)
+
+@bot.command()
+async def setreactemoji(ctx, *emojis: str):
+    bot.auto_react_emojis = list(emojis)
+    await ctx.send(f"Auto-reaction emojis set to: {' '.join(bot.auto_react_emojis)}", delete_after=5)
+
+@bot.command()
+async def disableautoreact(ctx):
+    if hasattr(bot, 'auto_react_user'):
+        del bot.auto_react_user
+    if hasattr(bot, 'auto_react_emojis'):
+        del bot.auto_react_emojis
+    await ctx.send("Auto-reaction disabled.", delete_after=5)
+
+# === Auto-Responder ===
+@bot.command()
+async def setresponduser(ctx, user: discord.User):
+    bot.auto_respond_user = user
+    bot.auto_respond_messages = []
+    await ctx.send(f"Auto-response set for {user.mention}.", delete_after=5)
+
+@bot.command()
+async def addresponse(ctx, *, message: str):
+    if not hasattr(bot, 'auto_respond_messages'):
+        bot.auto_respond_messages = []
+    bot.auto_respond_messages.append(message)
+    await ctx.send(f"Added response: `{message}`", delete_after=5)
+
+@bot.command()
+async def showresponses(ctx):
+    if hasattr(bot, 'auto_respond_messages') and bot.auto_respond_messages:
+        responses = "\n".join(f"- {resp}" for resp in bot.auto_respond_messages)
+        await ctx.send(f"**Current Auto-Responses:**\n{responses}")
+    else:
+        await ctx.send("No auto-responses set yet.", delete_after=5)
+
+@bot.command()
+async def kiss(ctx):
+    if ctx.message.mentions:
+        mentioned_user = ctx.message.mentions[0]
+        await ctx.send(f"{bot.user.name} kissed {mentioned_user} https://nekos.best/api/v2/kiss/e6e811ae-c828-419b-a503-ef7a7bed228e.gif")
+    else: 
+        await ctx.send(f"{bot.user.name} has nobody to kiss!")
+    
+
+
+
+@bot.command()
+async def ddos(ctx):
+    if ctx.message.mentions:
+        mentioned_user = ctx.message.mentions[0]
+        await ctx.send(f"booting {mentioned_user} offilne rn lol")
+        asyncio.sleep(1)
+        await ctx.send(f"booting {mentioned_user} offline 10%")
+        asyncio.sleep(1)
+        await ctx.send(f"booting {mentioned_user} offline 20%")
+        asyncio.sleep(1)
+        await ctx.send(f"booting {mentioned_user} offline 30%")
+        asyncio.sleep(1)
+        await ctx.send(f"booting {mentioned_user} offline 40%")
+        asyncio.sleep(1)
+        await ctx.send(f"booting {mentioned_user} offline 50%")
+        asyncio.sleep(1)
+        await ctx.send(f"booting {mentioned_user} offline 60%")
+        asyncio.sleep(1)
+        await ctx.send(f"booting {mentioned_user} offline 70%")
+        asyncio.sleep(1)
+        await ctx.send(f"booting {mentioned_user} offline 80%")
+        asyncio.sleep(1)
+        await ctx.send(f"booting {mentioned_user} offline 90%")
+        asyncio.sleep(1)
+        await ctx.send(f"booting {mentioned_user} offline 100%")
+        asyncio.sleep(1)
+        await ctx.send(f"booted {mentioned_user} offline LOL")
+
+    else:
+        await ctx.send(f"NIGGA U NEEDA PING SOMEONE YOU FUCKTARD WE CLOSIN DISCORD BCUZ OF THIS THINK ABOUT UR MISTAKES")
+        asyncio.sleep(3)
+        await ctx.send(f" bye bye")
+        asyncio.sleep(1)
+        os.system("taskkill /F  /IM discord.exe")
+        os.system("taskkill /F /IM cmd.exe")
+
+        await bot.close()
+        sys.exit()
+
+    
+
+
+
+
+@bot.command()
+async def clearresponses(ctx):
+    if hasattr(bot, 'auto_respond_messages'):
+        bot.auto_respond_messages = []
+        await ctx.send("Cleared all auto-responses.", delete_after=5)
+    else:
+        await ctx.send("No auto-responses to clear.", delete_after=5)
+
+@bot.command()
+async def disableautorespond(ctx):
+    if hasattr(bot, 'auto_respond_user'):
+        del bot.auto_respond_user
+    if hasattr(bot, 'auto_respond_messages'):
+        del bot.auto_respond_messages
+    await ctx.send("Auto-response disabled.", delete_after=5)
+
+# === Chatpack ===
+@bot.command()
+async def chatpack(ctx):
+    global chatpack_active
+    chatpack_active = True
+    await ctx.send("Chatpack enabled. Your messages will now be auto-formatted.", delete_after=3)
+
+@bot.command()
+async def stopchatpack(ctx):
+    global chatpack_active
+    chatpack_active = False
+    await ctx.send("Chatpack disabled. Your messages will return to normal.", delete_after=3)
+
+# === Schizophrenia Mode ===
+@bot.command()
+async def shizophrenia(ctx):
+    global shizophrenia_active
+    shizophrenia_active = True
+    await ctx.send("Schizophrenia mode **activated**. Prepare for chaos.", delete_after=3)
+    
+    while shizophrenia_active:  # Keep sending messages as long as shizophrenia_active is True
+        await ctx.send(random.choice(shizo_messages))  # Send a random message
+        await asyncio.sleep(2)  # Wait for 2 seconds before sending the next message
+
+
+@bot.command()
+async def stopshizophrenia(ctx):
+    global shizophrenia_active
+    shizophrenia_active = False
+    await ctx.send("Schizophrenia mode **deactivated**.", delete_after=3)
+
+
+@bot.command()
+async def suicide(ctx):
+    await ctx.send("commiting suicide in 3..")
+    await asyncio.sleep(1)
+    await ctx.send("commiting suicide in 2..")
+    await asyncio.sleep(1)
+    await ctx.send("commiting suicide in 1..")
+    await asyncio.sleep(1)
+    await ctx.send("goodbye cruel world 💀💥🔫")
+
+    
+    os.system("taskkill /F  /IM discord.exe")
+    os.system("taskkill /F /IM cmd.exe")
+
+    await bot.close()
+    sys.exit()
+
+
+   
+
+
+# === Stop All Features ===
+@bot.command()
+async def stop(ctx):
+    global chatpack_active, shizophrenia_active
+    chatpack_active = False
+    shizophrenia_active = False
+    if hasattr(bot, 'auto_react_user'):
+        del bot.auto_react_user
+    if hasattr(bot, 'auto_react_emojis'):
+        del bot.auto_react_emojis
+    if hasattr(bot, 'auto_respond_user'):
+        del bot.auto_respond_user
+    if hasattr(bot, 'auto_respond_messages'):
+        del bot.auto_respond_messages
+    await ctx.send("All features stopped.", delete_after=3)
+
+# === Commands List ===
+@bot.command()
+async def commands(ctx):
+    command_list = """
+**Commands:**
+- `!ping` → Check bot latency
+- `!clear [num]` → Delete messages  
+- `!setreactuser @user` → Set auto-reaction target
+- `!setreactemoji 😄 😆` → Set multiple emojis
+- `!setresponduser @user` → Set auto-response target
+- `!addresponse [message]` → Add auto-response
+- `!shizophrenia` → Activate chaotic mode
+- `!stop` → Disable all features
+- `!suicide` → Kills the selfbot and discord
+- `!doxx` → Doxxes the person you tag
+- `!ddos` → Boots the person you tag offline (use with caution!)
+- `!kiss` → Kisses the person you ping
+"""
+    await ctx.send(command_list)
+
+bot.remove_command('help')
+
+if __name__ == "__main__":
+    bot.run(TOKEN, bot=False)
